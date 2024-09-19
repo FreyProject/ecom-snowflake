@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	<flow name="post-customer-impl-flow" doc:id="9432b885-9cfc-4555-92b5-1129fef76b4e" >
+		<logger level="INFO" doc:name="customer payload" doc:id="5ec35298-402e-4b04-811a-1ed552ed2861" message="post customer impl flow start and transformation begin #[payload]"/>
+		<ee:transform doc:name="customer mapping" doc:id="a28985b8-798a-4763-a293-ca62ea795dd1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+ payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<snowflake:insert doc:name="Insert" doc:id="6db30a82-1900-471a-8d42-4a14622ea823" config-ref="Snowflake_Config1">
+			<snowflake:sql ><![CDATA[INSERT INTO CUSTOMER (CUSTOMERID, EMAIL, NAME, PHONE, CITY) VALUES (:custId, :custEmail, :custName, :custPhone, :city)]]></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId" : payload.cust_id,
+	"custEmail": payload.cust_email,
+	"custName": payload.cust_name,
+	"custPhone": payload.cust_phone,
+	"city": payload.cust_address
+}]]]></snowflake:input-parameters>
+		</snowflake:insert>
+		<choice doc:name="Choice" doc:id="f2eec2e3-3aa5-446d-bf2d-0075d543b364" >
+			<when expression="sizeOf(payload)&gt;=1">
+				<logger level="INFO" doc:name="snowflake call end " doc:id="0c2a73b2-1f7f-49d2-84a7-c9489fe95d7f" message="snowflake call end : #[payload]"/>
+				<ee:transform doc:name="Transform Message" doc:id="1175f734-79e4-411b-b7a6-99f501aecd4e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": true,
+	"message": " record is inserted for customer " 
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="snowfalke call end " doc:id="e1d5acf4-82d8-4ca4-adba-3bd6deed73ae" message="snowflake call end " />
+				<ee:transform doc:name="Transform Message" doc:id="8a1c08a6-e06c-43bf-97e1-b6a9025fcec0" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+ {
+	" status": false,
+	"message": " no customer is found " 
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

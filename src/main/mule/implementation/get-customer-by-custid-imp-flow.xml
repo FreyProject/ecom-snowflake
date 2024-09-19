@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="get-customer-by-custid" doc:id="32ccc47b-9cad-4089-bef0-8982b955a8fb" >
+		<logger level="INFO" doc:name="Flow Start" doc:id="7fc686c6-82b4-410c-95b4-77ba96a4d61c" message="get customer by ID flow starts #[payload]"/>
+		<set-variable value="#[attributes.uriParams.cust_id]" doc:name="Set Variable" doc:id="84c0e0c4-0beb-4c62-ac20-5bd299d6b2ba" variableName="custid"/>
+		<logger level="INFO" doc:name="SF Call Start" doc:id="e36f9a2d-ac59-453f-bad0-d53a00eee2b4" message="snowflak call start #[payload]" />
+		<snowflake:select doc:name="Select" doc:id="438f6d30-c00c-4a38-8239-d3e617b76653" config-ref="Snowflake_Config1">
+			<snowflake:sql ><![CDATA[SELECT * FROM CUSTOMER WHERE CUSTOMERID = :custId]]></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId": vars.custid
+}]]]></snowflake:input-parameters>
+		</snowflake:select>
+		<choice doc:name="Choice" doc:id="84807ea7-c6cc-4de8-b559-606bdf47a21e" >
+			<when expression="#[sizeOf(payload)&gt;=1]">
+				<logger level="INFO" doc:name="SF Call End " doc:id="1dec2302-cd74-4eab-a03a-583841053bdf" message="snowflake call end #[payload]"/>
+				<ee:transform doc:name="Response" doc:id="7e074390-d07f-4eaa-85e3-37a0e2d09522" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/Json
+---
+{
+	"status": true,
+	"message ":" record is found  for customer " ++ " " ++ vars.custid
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="SF Call End" doc:id="c9aad138-570b-4574-8b01-77abc006d8c8" />
+				<ee:transform doc:name="Response" doc:id="f9ba05c9-5a8b-4f9f-b817-b334163a4220" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"status": false,
+	"message" : "no record is found for the customer " ++ " " ++ vars.custid
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <flow name="ecom-sf-sapi-main">
+        <http:listener config-ref="ecom-sf-sapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="ecom-sf-sapi-config" />
+        <error-handler ref="global-error-handler" />
+    </flow>
+    <flow name="put:\customers\(cust_id):application\json:ecom-sf-sapi-config">
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="cust_id">attributes.uriParams.'cust_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform> [STUDIO] -->
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  code: "200",
+  message: "customer data updated successfuly"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform> [STUDIO] -->
+		<flow-ref doc:name="update-customer" doc:id="67f8b356-039f-4174-8093-0e88df083d54" name="update-customer-impl-flowFlow"/>
+    </flow>
+    <flow name="delete:\customers\(cust_id):ecom-sf-sapi-config">
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="cust_id">attributes.uriParams.'cust_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform> [STUDIO] -->
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  code: "204",
+  message: "customer deleted successfuly"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform> [STUDIO] -->
+		<flow-ref doc:name="delete-customer-by-id" doc:id="2fd304da-7cd8-4637-8fc3-926cf9453574" name="delete-customer-impl-flowFlow"/>
+    </flow>
+    <flow name="patch:\customers:application\json:ecom-sf-sapi-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  code: "200",
+  message: "Account updated successfuly"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="get:\customers\(cust_id):ecom-sf-sapi-config">
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="cust_id">attributes.uriParams.'cust_id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform> [STUDIO] -->
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  code: "400",
+  message: "bad request"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform> [STUDIO] -->
+		<flow-ref doc:name="get-customer-by-custid" doc:id="731a9cec-39b9-47be-9211-c96fe8c4dc2a" name="get-customer-by-custid"/>
+    </flow>
+    <flow name="get:\customers:ecom-sf-sapi-config">
+        <!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  code: "400",
+  message: "bad request"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform> [STUDIO] -->
+		<flow-ref doc:name="get-all-customers" doc:id="be6c38bf-1f5e-4517-9abb-9cf6bc87b86b" name="get-all-customer-imp-flowFlow"/>
+    </flow>
+    <flow name="post:\customers:application\json:ecom-sf-sapi-config">
+        <flow-ref doc:name="post-customer" doc:id="9331a05c-eb11-4249-a914-8c4975099ea1" name="post-customer-impl-flow" />
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+  code: "400",
+  message: "bad request"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform> [STUDIO] -->
+    </flow>
+</mule>

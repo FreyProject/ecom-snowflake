@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="global-error-handler" doc:id="64a1b3a7-d188-4b39-8155-df0874ecf50a" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="bc4f9d68-8cae-4907-a454-9a804085babf" type="APIKIT:BAD_REQUEST">
+			<set-variable value="400" doc:name="errorCode" doc:id="3893b660-b501-4c3a-972d-a779acb1cca6" variableName="errorCode"/>
+			<flow-ref doc:name="Error Response Reference" doc:id="ffd4fc0a-71d5-4b61-8594-96b553ce26d4" name="global-error-handler-error-response"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d6c0067c-9f14-45d2-b83d-4aafb99419f5" type="APIKIT:NOT_FOUND">
+			<set-variable value="404" doc:name="errorCode" doc:id="b7cf42ab-8d17-4e71-a1fc-e29440b769b6" variableName="errorCode" />
+			<flow-ref doc:name="Error Response Reference" doc:id="0b306056-5c08-4972-a6d8-bf94e35028ff" name="global-error-handler-error-response" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="dc15b972-108b-49f6-9158-5e8281cea20d" type="APIKIT:METHOD_NOT_ALLOWED">
+			<set-variable value="405" doc:name="errorCode" doc:id="0885a611-f351-4a34-9e40-2755df3ff9ba" variableName="errorCode" />
+			<flow-ref doc:name="Error Response Reference" doc:id="4ab7a87c-ebcf-41ed-a28f-8ac60a25730e" name="global-error-handler-error-response" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="63b53381-1117-4004-94fc-1047eb5332e2" type="APIKIT:NOT_ACCEPTABLE">
+			<set-variable value="406" doc:name="errorCode" doc:id="9cc51493-47c9-4c8b-af9c-dc10adb6dc3d" variableName="errorCode" />
+			<flow-ref doc:name="Error Response Reference" doc:id="219ce815-5e5b-4766-89b4-36a4bb5ae779" name="global-error-handler-error-response" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="00ef90db-baad-49b8-8419-1dd06825fc0d" type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+			<set-variable value="415" doc:name="errorCode" doc:id="3a073f42-3a9b-457d-9e4c-28f1b1275edd" variableName="errorCode" />
+			<flow-ref doc:name="Error Response Reference" doc:id="c5951348-a5b2-4c03-9116-7513bf578fe2" name="global-error-handler-error-response" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0f5e8c19-3495-4ce9-a655-037c61bf8b36" type="ANY">
+			<set-variable value="#[vars.errorCode default 500]" doc:name="errorCode" doc:id="0470b433-5f70-4fbb-b196-849a03273176" variableName="errorCode" />
+			<flow-ref doc:name="Error Response Reference" doc:id="ec1bad1c-982c-49da-991a-77360f2bc6f7" name="global-error-handler-error-response" />
+		</on-error-propagate>
+	</error-handler>
+	<flow name="global-error-handler-error-response" doc:id="ebdd4639-5da0-40b2-b59c-4dabda721b81" >
+		<ee:transform doc:name="Error Response" doc:id="2965ade4-1cdb-48aa-afaa-d65c38dbe948" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/Json
+---
+{
+	"error": {
+		"errorCode": vars.errorCode,
+		"flowName": "ecom-sf-sapi",
+		"correlationId" : correlationId,
+		"error message" : error.errorMessage,
+	 "error Type" :  error.errorType.identifier
+		
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

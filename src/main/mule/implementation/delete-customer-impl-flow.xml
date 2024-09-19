@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="delete-customer-impl-flowFlow" doc:id="4a3376fe-5b2b-4659-9784-18514aefabd5" >
+		<logger level="INFO" doc:name="delete-customer-by-custid" doc:id="477b604f-f904-4f9b-826c-c66f0785b3a3" message="delete customer impl flow starts and the snowflake call starts : #[payload]"/>
+		<set-variable value="#[attributes.uriParams.cust_id]" doc:name="Set Variable" doc:id="28c29b93-fdd5-4886-9a9b-a7bb4dc7918c" variableName="custid"/>
+		<snowflake:delete doc:name="Delete" doc:id="acc56616-6927-4928-926d-4a862fde5912" config-ref="Snowflake_Config1">
+			<snowflake:sql ><![CDATA[DELETE FROM CUSTOMER WHERE CUSTOMERID = :custid]]></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custid": attributes.uriParams.cust_id
+}]]]></snowflake:input-parameters>
+		</snowflake:delete>
+		<logger level="INFO" doc:name="Snowflake call end" doc:id="555961e0-5c84-4d90-9e72-f68c316d0c55" message="Snowflake call ended: #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="1df2aac2-f2ef-4388-9d0b-8268de57b974" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"success": true,
+	"message": " The record is deleted from DB " ++ " " ++ vars.custid 
+	
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

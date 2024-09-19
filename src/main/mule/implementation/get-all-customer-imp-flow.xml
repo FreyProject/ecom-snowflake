@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	<flow name="get-all-customer-imp-flowFlow" doc:id="e5a2fedf-bd83-42ff-a9b5-dc146dede438" >
+		<logger level="INFO" doc:name=" Flow Start" doc:id="9c116ae4-ae7f-4ea3-89fb-ea7ee6ba8d5e" message="get all customer flow started and snow flake call start : #[payload]"/>
+		<snowflake:select doc:name="Select" doc:id="da5d6f9d-2870-4dbc-b4c1-948b84dba7cb" config-ref="Snowflake_Config1">
+			<snowflake:sql ><![CDATA[SELECT * FROM CUSTOMER  ]]></snowflake:sql>
+		</snowflake:select>
+		<logger level="INFO" doc:name="Snowflake Call end" doc:id="9427bc15-3a7d-4ce2-8602-d56e2e9ab41c" message="Snowfalke call end  #[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="602e21b2-6173-406a-82a4-ea9534cb21d0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+	{
+		"status": true,
+		"message": "customers record found "
+	}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

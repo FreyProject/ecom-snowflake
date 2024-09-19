@@ -1,0 +1,15 @@
+Api:
+ id: "19876588"
+ name: "ecom-sf-sapi"
+ version: "v1"
+ 
+ #snowflake config:
+ 
+snowflake:
+  Account:  "am33280.us-central1"
+  Warehouse: "COMPUTE_WH"
+  Database: "CRM"
+  Schema: "public"
+  Role: "ACCOUNTADMIN"
+  User:  "![s3DxIlFdMM0=]"
+  pass:  "![jRNcndC8Z6igeFZhzDWCuA==]"

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	
+	<http:listener-config name="ecom-sf-sapi-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="ecom-sf-sapi-config" api="ecom-sf-sapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<!-- <snowflake:snowflake-config name="Snowflake_Config1" doc:name="Snowflake Config" doc:id="c631bdcf-7afd-42c8-8245-300fb7af1a29" >
+		<snowflake:snowflake-connection accountName="mkb06146.us-east-1" warehouse="COMPUTE_WH" database="CRM" schema="PUBLIC" user="hibiri" password="Hibiri@tadu1127" role="ACCOUNTADMIN"/>
+	</snowflake:snowflake-config> -->
+	<global-property doc:name="Global Property" doc:id="f40d1026-6a7e-4c39-b02d-c73620041325" name="env" value="local" />
+	<configuration-properties doc:name="Configuration properties" doc:id="165311c7-80c2-4dcb-aab1-c7190fff0764" file="config/${env}.yaml" />
+	<snowflake:snowflake-config name="Snowflake_Config1" doc:name="Snowflake Config" doc:id="a8b96d3e-b746-434a-993e-33cbbf9cac4e" >
+		<snowflake:snowflake-connection accountName="${snowflake.Account}" warehouse="${snowflake.Warehouse}" database="${snowflake.Database}" schema="${snowflake.Schema}" user="${secure::snowflake.User}" password="${secure::snowflake.pass}" role="${snowflake.Role}" />
+	</snowflake:snowflake-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="370d813e-a647-4af2-a6a8-1f58f46f7ce0" file="config/${env}.yaml" key="${mule.key}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	<global-property doc:name="Global Property" doc:id="65f21862-55c2-49b5-ad43-918e5b8404e6" name="mule.key" value="ecomerce-snowflake-api" />
+    
+	
+	
+
+	
+</mule>

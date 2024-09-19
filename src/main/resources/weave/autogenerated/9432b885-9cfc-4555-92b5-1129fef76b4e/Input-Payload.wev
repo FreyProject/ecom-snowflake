@@ -1,0 +1,8 @@
+%dw 2.0
+
+type auto_9432b885_9cfc_4555_92b5_1129fef76b4e_Input_Payload = {|
+  success: Boolean, 
+  message: String
+|} {"mediaType": "application/json",
+"encoding": "UTF-8"}
+
